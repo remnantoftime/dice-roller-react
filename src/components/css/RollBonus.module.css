@@ -1,0 +1,37 @@
+.roll_bonus {
+  height: 30px;
+}
+
+.roll_bonus_minus {
+  height: 30px;
+  width: 30px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.roll_bonus_plus {
+  height: 30px;
+  width: 30px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.roll_bonus_input {
+  height: 26px;
+  width: 35px;
+  border-radius: 0px;
+  border-left-width: 0px;
+  border-right-width: 0px;
+  text-align: center;
+}
+
+.roll_bonus_input::-webkit-outer-spin-button,
+.roll_bonus_input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}

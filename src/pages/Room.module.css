@@ -1,0 +1,149 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  align-content: center;
+
+  height: 100vh;
+}
+
+.header {
+  height: 40px;
+  width: 100%;
+  max-width: 750px;
+  margin-top: 10px;
+  margin-right: 5px;
+  align-items: center;
+  text-align: center;
+}
+
+.roomHeader {
+  text-align: center;
+  margin: 0px auto;
+  width: 80%;
+  padding-bottom: 15px;
+  padding-top: 10px;
+  font-size: 28px;
+}
+
+.dice_input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  font-weight: 800;
+
+  .characterSelect {
+    width: 200px;
+    text-align: center;
+    align-self: center;
+  }
+}
+
+.roller {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: var(--background-color-2);
+  box-shadow: 0px 0px 10px #00000025;
+  width: max-content;
+  margin: 0px auto;
+  padding: 10px;
+  border-radius: 20px;
+
+  .roll_button {
+    height: 30px;
+    aspect-ratio: 2/1;
+    background-color: var(--button-colour);
+    border-width: 0.5px;
+  }
+}
+
+.diceList {
+  animation: fadeDown is linear;
+}
+@keyframes fadeDown {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.diceRolls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15px;
+  height: 55%;
+  width: 415px;
+
+  overflow: scroll;
+  overflow-x: hidden;
+}
+.diceRolls::-webkit-scrollbar {
+  width: 1px;
+}
+.diceRolls::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+.diceRolls::-webkit-scrollbar-thumb {
+  background: var(--button-colour);
+}
+
+.rollBanner {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  align-items: center;
+  gap: 15px;
+  height: 55px;
+  width: 400px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  border-width: 0px;
+  border-top-width: 1px;
+  border-color: var(--button-colour);
+  border-style: solid;
+
+  .rollCharacter {
+    height: 55px;
+    width: 100px;
+    text-align: center;
+    font-family: "Roboto Mono", monospace;
+    color: var(--text-colour);
+
+    .characterFont {
+      align-self: center;
+    }
+  }
+
+  .rollDetails {
+    display: flex;
+    flex-direction: column;
+    align-items: left;
+    height: 55px;
+    width: 300px;
+    gap: 5px;
+    align-items: left;
+
+    .rollTotal {
+      height: 25px;
+      font-family: "Roboto Mono", monospace;
+      font-display: inherit;
+      color: var(--text-colour);
+    }
+
+    .rollParts {
+      height: 25px;
+      font-family: "Roboto Mono", monospace;
+      font-display: inherit;
+      color: var(--text-colour);
+    }
+  }
+}
