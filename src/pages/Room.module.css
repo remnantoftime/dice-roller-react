@@ -61,19 +61,6 @@
   }
 }
 
-.diceList {
-  animation: fadeDown is linear;
-}
-@keyframes fadeDown {
-  0% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
 .diceRolls {
   display: flex;
   flex-direction: column;

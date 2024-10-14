@@ -25,7 +25,7 @@ import {
 export default function Room() {
   // Set up and redirect if the url contains a system that doesn't exit
   const params = useParams();
-  const roomName = params.room.replaceAll(" ", "-").replaceAll("%20", "-").toLowerCase();
+  localStorage.setItem("room", params.room.replaceAll(" ", "-").replaceAll("%20", "-").toLowerCase());
 
   // Create the random number generator based on the user's seed and the current time
   const [generator, setGenerator] = useState();
@@ -34,14 +34,14 @@ export default function Room() {
   }, []);
 
   // Define the character name state
-  const characterKey = "character-" + roomName;
+  const characterKey = "character-" + localStorage.getItem("room");
   const [characterName, setCharacterName] = useState(localStorage.getItem(characterKey) || "");
   useEffect(() => {
     localStorage.setItem(characterKey, characterName);
   }, [characterKey, characterName]);
 
   // Define the system that is currently being used
-  const localSystemKey = `system-${roomName}`;
+  const localSystemKey = "system-" + localStorage.getItem("room");
   const [system, setSystem] = useState(localStorage.getItem(localSystemKey) || "d20");
 
   // Define the dice being used for the system and its setting function
@@ -66,21 +66,20 @@ export default function Room() {
 
   // Define the dice roll history and set it to be the last 15 rolls for the room
   const [diceRollHistory, setDiceRollHistory] = useState([]);
-  const diceRollQuery = query(
-    collection(db, "dice-rolls"),
-    where("room", "==", roomName),
-    orderBy("timestamp", "desc"),
-    limit(15)
-  );
 
   // Use a snapshot listener to refresh the history when an update occurs
-  useEffect(
-    () =>
-      onSnapshot(diceRollQuery, (snapshot) =>
-        setDiceRollHistory(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-      ),
-    []
-  );
+  useEffect(() => {
+    const diceRollQuery = query(
+      collection(db, "dice-rolls"),
+      where("room", "==", localStorage.getItem("room")),
+      orderBy("timestamp", "desc"),
+      limit(15)
+    );
+
+    onSnapshot(diceRollQuery, (snapshot) =>
+      setDiceRollHistory(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+    );
+  }, []);
 
   // Roll the dice specified in the room and create a document in the database for the roll
   function rollDice() {
@@ -96,7 +95,7 @@ export default function Room() {
       total: diceTotal,
       diceRoll: diceRollsCombined,
       timestamp: Timestamp.now(),
-      room: roomName,
+      room: localStorage.getItem("room"),
     };
     addDoc(collection(db, "dice-rolls"), diceRoll);
   }
@@ -108,7 +107,7 @@ export default function Room() {
         <System system={system} setSystem={handleSystemChange} />
         <ColourMode />
       </section>
-      <h1 className={styles.roomHeader}>{roomName.replaceAll("-", " ")}</h1>
+      <h1 className={styles.roomHeader}>{localStorage.getItem("room").replaceAll("-", " ")}</h1>
       <div className={styles.dice_input}>
         <input
           type="text"
