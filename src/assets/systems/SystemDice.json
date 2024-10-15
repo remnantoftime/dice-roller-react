@@ -1,0 +1,39 @@
+{
+    "cyberpunk": {
+        "d4": {
+            "type": "normal"
+        },
+        "d6": {
+            "type": "normal"
+        },
+        "d10": {
+            "type": "explode-once"
+        },
+        "d100": {
+            "type": "normal"
+        }
+    },
+    "d20": {
+        "d4": {
+            "type": "normal"
+        },
+        "d6": {
+            "type": "normal"
+        },
+        "d8": {
+            "type": "normal"
+        },
+        "d10": {
+            "type": "normal"
+        },
+        "d12": {
+            "type": "normal"
+        },
+        "d20": {
+            "type": "normal"
+        },
+        "d100": {
+            "type": "normal"
+        }
+    }
+}

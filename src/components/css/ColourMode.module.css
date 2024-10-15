@@ -1,0 +1,6 @@
+.colourMode {
+  height: 35px;
+  cursor: pointer;
+  float: right;
+  padding-right: 5px;
+}
