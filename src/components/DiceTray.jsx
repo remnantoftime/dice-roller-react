@@ -1,24 +1,39 @@
 import styles from "./css/DiceTray.module.css";
 import { useTheme } from "../context/ThemeContext";
 
-// Get the dice images
+import d4Light from "../assets/dice/d4-light.png";
+import d6Light from "../assets/dice/d6-light.png";
+import d8Light from "../assets/dice/d8-light.png";
+import d10Light from "../assets/dice/d10-light.png";
+import d12Light from "../assets/dice/d12-light.png";
+import d20Light from "../assets/dice/d20-light.png";
+import d100Light from "../assets/dice/d100-light.png";
+
+import d4Dark from "../assets/dice/d4-dark.png";
+import d6Dark from "../assets/dice/d6-dark.png";
+import d8Dark from "../assets/dice/d8-dark.png";
+import d10Dark from "../assets/dice/d10-dark.png";
+import d12Dark from "../assets/dice/d12-dark.png";
+import d20Dark from "../assets/dice/d20-dark.png";
+import d100Dark from "../assets/dice/d100-dark.png";
+
 const imagesLight = {
-  d4: require("../assets/dice/d4-light.png"),
-  d6: require("../assets/dice/d6-light.png"),
-  d8: require("../assets/dice/d8-light.png"),
-  d10: require("../assets/dice/d10-light.png"),
-  d12: require("../assets/dice/d12-light.png"),
-  d20: require("../assets/dice/d20-light.png"),
-  d100: require("../assets/dice/d100-light.png"),
+  d4: d4Light,
+  d6: d6Light,
+  d8: d8Light,
+  d10: d10Light,
+  d12: d12Light,
+  d20: d20Light,
+  d100: d100Light,
 };
 const imagesDark = {
-  d4: require("../assets/dice/d4-dark.png"),
-  d6: require("../assets/dice/d6-dark.png"),
-  d8: require("../assets/dice/d8-dark.png"),
-  d10: require("../assets/dice/d10-dark.png"),
-  d12: require("../assets/dice/d12-dark.png"),
-  d20: require("../assets/dice/d20-dark.png"),
-  d100: require("../assets/dice/d100-dark.png"),
+  d4: d4Dark,
+  d6: d6Dark,
+  d8: d8Dark,
+  d10: d10Dark,
+  d12: d12Dark,
+  d20: d20Dark,
+  d100: d100Dark,
 };
 
 function Dice({ id, number, onIncrease, onDecrease }) {

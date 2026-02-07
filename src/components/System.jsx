@@ -2,14 +2,18 @@ import styles from "./css/System.module.css";
 import { useTheme } from "../context/ThemeContext";
 import diceSystems from "../assets/systems/SystemDice.json";
 
-// Get the system images
+import cyberpunkLight from "../assets/systems/cyberpunk-light.png";
+import d20Light from "../assets/systems/d20-light.png";
+import cyberpunkDark from "../assets/systems/cyberpunk-dark.png";
+import d20Dark from "../assets/systems/d20-dark.png";
+
 const imagesLight = {
-  cyberpunk: require("../assets/systems/cyberpunk-light.png"),
-  d20: require("../assets/systems/d20-light.png"),
+  cyberpunk: cyberpunkLight,
+  d20: d20Light,
 };
 const imagesDark = {
-  cyberpunk: require("../assets/systems/cyberpunk-dark.png"),
-  d20: require("../assets/systems/d20-dark.png"),
+  cyberpunk: cyberpunkDark,
+  d20: d20Dark,
 };
 
 // Get the list of system names
