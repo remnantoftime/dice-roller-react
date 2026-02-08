@@ -19,7 +19,7 @@ import {
   orderBy,
   limit,
   addDoc,
-  Timestamp,
+  serverTimestamp,
 } from "firebase/firestore";
 
 export default function Room() {
@@ -94,7 +94,7 @@ export default function Room() {
       character: characterName,
       total: diceTotal,
       diceRoll: diceRollsCombined,
-      timestamp: Timestamp.now(),
+      timestamp: serverTimestamp(),
       room: localStorage.getItem("room"),
     };
     addDoc(collection(db, "dice-rolls"), diceRoll);
