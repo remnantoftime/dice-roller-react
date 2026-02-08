@@ -68,14 +68,17 @@ Currently, the following systems are supported:
 The number of dice rolls displayed in the app is 15 per room, showing the rolls for the room in
 order of time rolled.
 
+Some systems may allow for a fortune system i.e. rolls may have advantage or disadvantage depending
+on the situation. The output of both rolls when rolling at advantage/disadvantage are displayed,
+with the roll associated with the total highlighted in either green or red respectively for ease of
+readability.
+
 ## Future Features
 
 Currently this is the first draft with the most basic features needed to play. In the future I am
 looking to implement the following:
 
 - A button to make the login password visible on click.
-- Advantage and disadvantage buttons (i.e. roll two dice and take the highest or lowest
-  respectively).
 - Indication of critical success/failure. This will be more complex depending on the system (e.g.
   Cyberpunk RED has critical injuries when two 6s are rolled in damage calculations).
 - The abilitiy to reroll a roll in the history and update the record in the database.

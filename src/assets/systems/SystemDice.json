@@ -14,6 +14,7 @@
         }
     },
     "d20": {
+        "hasFortune": true,
         "d4": {
             "type": "normal"
         },
