@@ -134,3 +134,57 @@
     }
   }
 }
+
+.highlightedRoll {
+  font-weight: bold;
+  color: var(--button-colour);
+}
+
+.highlightedRollAdvantage {
+  font-weight: bold;
+  color: #22c55e;
+}
+
+.highlightedRollDisadvantage {
+  font-weight: bold;
+  color: #ef4444;
+}
+
+.bonusRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.fortuneButton {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid;
+  background-color: transparent;
+  transition: all 0.2s ease-in-out;
+  padding: 0;
+}
+
+.advantage {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+.advantage.active {
+  background-color: #22c55e;
+  color: white;
+}
+.disadvantage {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+.disadvantage.active {
+  background-color: #ef4444;
+  color: white;
+}

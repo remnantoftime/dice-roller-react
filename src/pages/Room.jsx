@@ -45,7 +45,9 @@ export default function Room() {
   const [system, setSystem] = useState(localStorage.getItem(localSystemKey) || "d20");
 
   // Define the dice being used for the system and its setting function
-  const defaultDice = Object.keys(systemsJson[system]).map((dice) => ({ id: dice, number: 0 }));
+  const defaultDice = Object.keys(systemsJson[system])
+    .filter((key) => key !== "hasFortune")
+    .map((dice) => ({ id: dice, number: 0 }));
   const [diceNumbers, setDiceNumbers] = useState(defaultDice);
   const handleDiceNumbersChange = (newDiceNumbers) => {
     setDiceNumbers(newDiceNumbers);
@@ -55,13 +57,24 @@ export default function Room() {
   const handleSystemChange = (newSystem) => {
     setSystem(newSystem);
     localStorage.setItem(localSystemKey, newSystem);
-    setDiceNumbers(Object.keys(systemsJson[newSystem]).map((dice) => ({ id: dice, number: 0 })));
+    setDiceNumbers(
+      Object.keys(systemsJson[newSystem])
+        .filter((key) => key !== "hasFortune")
+        .map((dice) => ({ id: dice, number: 0 }))
+    );
+    setRollFortune("none");
   };
 
   // Define the roll bonus and its setting function
   const [rollBonus, setRollBonus] = useState(0);
   const handleSetRollBonus = (value) => {
     setRollBonus(value);
+  };
+
+  // Define the advantage/disadvantage state
+  const [rollFortune, setRollFortune] = useState("none"); // 'none', 'advantage', 'disadvantage'
+  const handleRollFortuneClick = (fortune) => {
+    setRollFortune((prev) => (prev === fortune ? "none" : fortune));
   };
 
   // Define the dice roll history and set it to be the last 15 rolls for the room
@@ -87,15 +100,17 @@ export default function Room() {
       generator,
       systemsJson[system],
       diceNumbers,
-      rollBonus
+      rollBonus,
+      rollFortune
     );
-    const diceRollsCombined = diceRolls.join(" | ");
+    const diceRollsCombined = Array.isArray(diceRolls) ? diceRolls.join(" | ") : diceRolls;
     const diceRoll = {
       character: characterName,
       total: diceTotal,
       diceRoll: diceRollsCombined,
       timestamp: serverTimestamp(),
       room: localStorage.getItem("room"),
+      fortune: rollFortune,
     };
     addDoc(collection(db, "dice-rolls"), diceRoll);
   }
@@ -118,7 +133,29 @@ export default function Room() {
         />
         <DiceTray diceNumbers={diceNumbers} setDiceNumbers={handleDiceNumbersChange} />
         <div className={styles.roller}>
-          <RollBonus rollBonus={rollBonus} setRollBonus={handleSetRollBonus} />
+          <div className={styles.bonusRow}>
+            {systemsJson[system].hasFortune && (
+              <button
+                className={`${styles.fortuneButton} ${styles.advantage} ${
+                  rollFortune === "advantage" ? styles.active : ""
+                }`}
+                onClick={() => handleRollFortuneClick("advantage")}
+              >
+                A
+              </button>
+            )}
+            <RollBonus rollBonus={rollBonus} setRollBonus={handleSetRollBonus} />
+            {systemsJson[system].hasFortune && (
+              <button
+                className={`${styles.fortuneButton} ${styles.disadvantage} ${
+                  rollFortune === "disadvantage" ? styles.active : ""
+                }`}
+                onClick={() => handleRollFortuneClick("disadvantage")}
+              >
+                D
+              </button>
+            )}
+          </div>
           <input className={styles.roll_button} type="submit" value="Roll" onClick={rollDice} />
         </div>
       </div>
@@ -136,7 +173,37 @@ export default function Room() {
                   <AutoTextSize mode="box">Total: {roll.total}</AutoTextSize>
                 </div>
                 <div className={styles.rollParts}>
-                  <AutoTextSize mode="box">{roll.diceRoll}</AutoTextSize>
+                  <AutoTextSize mode="box">
+                    {roll.diceRoll.includes(" : ")
+                      ? roll.diceRoll.split(" : ").map((part, i, arr) => {
+                          const isLast = i === arr.length - 1;
+                          if (part.startsWith("**") && part.endsWith("**")) {
+                            return (
+                              <React.Fragment key={i}>
+                                <strong
+                                  className={
+                                    roll.fortune === "advantage"
+                                      ? styles.highlightedRollAdvantage
+                                      : roll.fortune === "disadvantage"
+                                      ? styles.highlightedRollDisadvantage
+                                      : styles.highlightedRoll
+                                  }
+                                >
+                                  {part.slice(2, -2)}
+                                </strong>
+                                {!isLast && " : "}
+                              </React.Fragment>
+                            );
+                          }
+                          return (
+                            <React.Fragment key={i}>
+                              <span>{part}</span>
+                              {!isLast && " : "}
+                            </React.Fragment>
+                          );
+                        })
+                      : roll.diceRoll}
+                  </AutoTextSize>
                 </div>
               </div>
             </div>
