@@ -117,6 +117,9 @@
     height: auto;
     width: 345px;
     gap: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+
 
     .rollTotal {
       height: 25px;
@@ -134,23 +137,22 @@
       word-break: break-word;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-      margin-bottom: 3px;
     }
   }
 }
 
-.highlightedRoll {
-  font-weight: bold;
-  color: var(--button-colour);
+.notHighlighted {
+  height: 25px;
 }
 
 .highlightedRollAdvantage {
+  height: 25px;
   font-weight: bold;
   color: #22c55e;
 }
 
 .highlightedRollDisadvantage {
+  height: 25px;
   font-weight: bold;
   color: #ef4444;
 }

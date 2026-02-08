@@ -113,6 +113,7 @@ export default function Room() {
       fortune: rollFortune,
     };
     addDoc(collection(db, "dice-rolls"), diceRoll);
+    setRollFortune("none");
   }
 
   return (
@@ -181,10 +182,10 @@ export default function Room() {
                         ? styles.highlightedRollAdvantage
                         : roll.fortune === "disadvantage"
                         ? styles.highlightedRollDisadvantage
-                        : styles.highlightedRoll;
+                        : styles.notHighlighted;
                     return (
-                      <div key={i} className={isHighlighted ? highlightClass : ""}>
-                        {text}
+                      <div key={i} className={isHighlighted ? highlightClass : styles.notHighlighted}>
+                        <AutoTextSize mode="box">{text}</AutoTextSize>
                       </div>
                     );
                   })}
