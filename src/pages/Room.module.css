@@ -67,7 +67,7 @@
   align-items: center;
   margin-top: 15px;
   height: 55%;
-  width: 415px;
+  width: 480px;
 
   overflow: scroll;
   overflow-x: hidden;
@@ -88,10 +88,8 @@
   justify-content: left;
   align-items: center;
   gap: 15px;
-  height: 55px;
-  width: 400px;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  height: auto;
+  width: 460px;
 
   border-width: 0px;
   border-top-width: 1px;
@@ -99,7 +97,8 @@
   border-style: solid;
 
   .rollCharacter {
-    height: 55px;
+    min-height: 55px;
+    height: auto;
     width: 100px;
     text-align: center;
     font-family: "Roboto Mono", monospace;
@@ -113,11 +112,11 @@
   .rollDetails {
     display: flex;
     flex-direction: column;
-    align-items: left;
-    height: 55px;
-    width: 300px;
+    align-items: flex-start;
+    min-height: 55px;
+    height: auto;
+    width: 345px;
     gap: 5px;
-    align-items: left;
 
     .rollTotal {
       height: 25px;
@@ -127,10 +126,16 @@
     }
 
     .rollParts {
-      height: 25px;
+      min-height: 25px;
+      height: auto;
       font-family: "Roboto Mono", monospace;
       font-display: inherit;
       color: var(--text-colour);
+      word-break: break-word;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 3px;
     }
   }
 }

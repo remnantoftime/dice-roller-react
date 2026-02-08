@@ -173,37 +173,21 @@ export default function Room() {
                   <AutoTextSize mode="box">Total: {roll.total}</AutoTextSize>
                 </div>
                 <div className={styles.rollParts}>
-                  <AutoTextSize mode="box">
-                    {roll.diceRoll.includes(" : ")
-                      ? roll.diceRoll.split(" : ").map((part, i, arr) => {
-                          const isLast = i === arr.length - 1;
-                          if (part.startsWith("**") && part.endsWith("**")) {
-                            return (
-                              <React.Fragment key={i}>
-                                <strong
-                                  className={
-                                    roll.fortune === "advantage"
-                                      ? styles.highlightedRollAdvantage
-                                      : roll.fortune === "disadvantage"
-                                      ? styles.highlightedRollDisadvantage
-                                      : styles.highlightedRoll
-                                  }
-                                >
-                                  {part.slice(2, -2)}
-                                </strong>
-                                {!isLast && " : "}
-                              </React.Fragment>
-                            );
-                          }
-                          return (
-                            <React.Fragment key={i}>
-                              <span>{part}</span>
-                              {!isLast && " : "}
-                            </React.Fragment>
-                          );
-                        })
-                      : roll.diceRoll}
-                  </AutoTextSize>
+                  {roll.diceRoll.split(" : ").map((part, i) => {
+                    const isHighlighted = part.startsWith("**") && part.endsWith("**");
+                    const text = isHighlighted ? part.slice(2, -2) : part;
+                    const highlightClass =
+                      roll.fortune === "advantage"
+                        ? styles.highlightedRollAdvantage
+                        : roll.fortune === "disadvantage"
+                        ? styles.highlightedRollDisadvantage
+                        : styles.highlightedRoll;
+                    return (
+                      <div key={i} className={isHighlighted ? highlightClass : ""}>
+                        {text}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
