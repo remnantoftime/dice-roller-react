@@ -1,19 +1,21 @@
+const getRoll = (generator, faces) => (generator.random_int() % faces) + 1;
+
 function rollDice(generator, numberOfFaces, isFirst) {
-  const roll = (generator.random_int() % numberOfFaces) + 1;
+  const roll = getRoll(generator, numberOfFaces);
   const text = isFirst ? `${roll}` : `, ${roll}`;
   return [roll, text];
 }
 
 function rollDiceExplodeOnce(generator, numberOfFaces, isFirst) {
-  var roll = (generator.random_int() % numberOfFaces) + 1;
-  var text = isFirst ? `${roll}` : `, ${roll}`;
+  let roll = getRoll(generator, numberOfFaces);
+  let text = isFirst ? `${roll}` : `, ${roll}`;
 
   if (roll === numberOfFaces) {
-    const nextRoll = (generator.random_int() % numberOfFaces) + 1;
+    const nextRoll = getRoll(generator, numberOfFaces);
     roll += nextRoll;
     text += `, ${nextRoll}`;
   } else if (roll === 1) {
-    const nextRoll = (generator.random_int() % numberOfFaces) + 1;
+    const nextRoll = getRoll(generator, numberOfFaces);
     roll -= nextRoll;
     text += `, -${nextRoll}`;
   }
@@ -22,21 +24,22 @@ function rollDiceExplodeOnce(generator, numberOfFaces, isFirst) {
 
 export function handleDiceRoll(generator, system, diceNumbers, bonus, rollFortune = "none") {
   const calculateRoll = () => {
-    var total = 0;
-    var rolls = [];
+    let total = 0;
+    const rolls = [];
+    const bonusValue = parseInt(bonus || 0);
 
     diceNumbers.forEach((dice) => {
       if (dice.number === 0) {
         return;
       }
-      const numberOfFaces = parseInt(dice.id.replace("d", ""));
+      const numberOfFaces = parseInt(dice.id.slice(1));
       const diceConfig = system[dice.id];
-      var diceTotal = 0;
-      var diceRoll = `${dice.id}: `;
+      let diceTotal = 0;
+      let diceRoll = `${dice.id}: `;
 
-      for (var i = 0; i < dice.number; i++) {
-        var rollTotal = 0;
-        var rollText = "";
+      for (let i = 0; i < dice.number; i++) {
+        let rollTotal = 0;
+        let rollText = "";
 
         switch (diceConfig.type) {
           case "explode-once":
@@ -55,11 +58,11 @@ export function handleDiceRoll(generator, system, diceNumbers, bonus, rollFortun
       rolls.push(diceRoll);
     });
 
-    total += parseInt(bonus || 0);
-    if (bonus > 0) {
-      rolls.push(`+ ${bonus}`);
-    } else if (bonus < 0) {
-      rolls.push(`- ${Math.abs(bonus)}`);
+    total += bonusValue;
+    if (bonusValue > 0) {
+      rolls.push(`+ ${bonusValue}`);
+    } else if (bonusValue < 0) {
+      rolls.push(`- ${Math.abs(bonusValue)}`);
     }
 
     return [total, rolls];

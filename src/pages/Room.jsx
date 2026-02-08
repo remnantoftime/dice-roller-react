@@ -1,6 +1,6 @@
 import styles from "./Room.module.css";
 import { useParams } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import systemsJson from "../assets/systems/SystemDice.json";
 import { DiceTray } from "../components/DiceTray";
 import MersenneTwister from "mersenne-twister";
@@ -25,43 +25,43 @@ import {
 export default function Room() {
   // Set up and redirect if the url contains a system that doesn't exit
   const params = useParams();
-  localStorage.setItem("room", params.room.replaceAll(" ", "-").replaceAll("%20", "-").toLowerCase());
+  const roomName = useMemo(
+    () => params.room.replaceAll(" ", "-").replaceAll("%20", "-").toLowerCase(),
+    [params.room]
+  );
+
+  useEffect(() => {
+    localStorage.setItem("room", roomName);
+  }, [roomName]);
 
   // Create the random number generator based on the user's seed and the current time
-  const [generator, setGenerator] = useState();
-  useEffect(() => {
-    setGenerator(new MersenneTwister(localStorage.getItem("seed")));
-  }, []);
+  const generator = useMemo(() => new MersenneTwister(localStorage.getItem("seed")), []);
 
   // Define the character name state
-  const characterKey = "character-" + localStorage.getItem("room");
+  const characterKey = "character-" + roomName;
   const [characterName, setCharacterName] = useState(localStorage.getItem(characterKey) || "");
   useEffect(() => {
     localStorage.setItem(characterKey, characterName);
   }, [characterKey, characterName]);
 
   // Define the system that is currently being used
-  const localSystemKey = "system-" + localStorage.getItem("room");
+  const localSystemKey = "system-" + roomName;
   const [system, setSystem] = useState(localStorage.getItem(localSystemKey) || "d20");
 
   // Define the dice being used for the system and its setting function
-  const defaultDice = Object.keys(systemsJson[system])
-    .filter((key) => key !== "hasFortune")
-    .map((dice) => ({ id: dice, number: 0 }));
-  const [diceNumbers, setDiceNumbers] = useState(defaultDice);
-  const handleDiceNumbersChange = (newDiceNumbers) => {
-    setDiceNumbers(newDiceNumbers);
+  const getSystemDice = (sys) => {
+    return Object.keys(systemsJson[sys])
+      .filter((key) => key !== "hasFortune")
+      .map((dice) => ({ id: dice, number: 0 }));
   };
+
+  const [diceNumbers, setDiceNumbers] = useState(() => getSystemDice(system));
 
   // Set the new system, and in turn, the dice tray
   const handleSystemChange = (newSystem) => {
     setSystem(newSystem);
     localStorage.setItem(localSystemKey, newSystem);
-    setDiceNumbers(
-      Object.keys(systemsJson[newSystem])
-        .filter((key) => key !== "hasFortune")
-        .map((dice) => ({ id: dice, number: 0 }))
-    );
+    setDiceNumbers(getSystemDice(newSystem));
     setRollFortune("none");
   };
 
@@ -84,15 +84,17 @@ export default function Room() {
   useEffect(() => {
     const diceRollQuery = query(
       collection(db, "dice-rolls"),
-      where("room", "==", localStorage.getItem("room")),
+      where("room", "==", roomName),
       orderBy("timestamp", "desc"),
       limit(15)
     );
 
-    onSnapshot(diceRollQuery, (snapshot) =>
+    const unsubscribe = onSnapshot(diceRollQuery, (snapshot) =>
       setDiceRollHistory(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
     );
-  }, []);
+
+    return () => unsubscribe();
+  }, [roomName]);
 
   // Roll the dice specified in the room and create a document in the database for the roll
   function rollDice() {
@@ -109,7 +111,7 @@ export default function Room() {
       total: diceTotal,
       diceRoll: diceRollsCombined,
       timestamp: serverTimestamp(),
-      room: localStorage.getItem("room"),
+      room: roomName,
       fortune: rollFortune,
     };
     addDoc(collection(db, "dice-rolls"), diceRoll);
@@ -123,7 +125,7 @@ export default function Room() {
         <System system={system} setSystem={handleSystemChange} />
         <ColourMode />
       </section>
-      <h1 className={styles.roomHeader}>{localStorage.getItem("room").replaceAll("-", " ")}</h1>
+      <h1 className={styles.roomHeader}>{roomName.replaceAll("-", " ")}</h1>
       <div className={styles.dice_input}>
         <input
           type="text"
@@ -132,7 +134,7 @@ export default function Room() {
           value={characterName}
           onChange={(e) => setCharacterName(e.target.value)}
         />
-        <DiceTray diceNumbers={diceNumbers} setDiceNumbers={handleDiceNumbersChange} />
+        <DiceTray diceNumbers={diceNumbers} setDiceNumbers={setDiceNumbers} />
         <div className={styles.roller}>
           <div className={styles.bonusRow}>
             {systemsJson[system].hasFortune && (
@@ -161,9 +163,9 @@ export default function Room() {
         </div>
       </div>
       <div className={styles.diceRolls}>
-        {diceRollHistory.map((roll, index) => {
+        {diceRollHistory.map((roll) => {
           return (
-            <div key={index} className={styles.rollBanner}>
+            <div key={roll.id} className={styles.rollBanner}>
               <div className={styles.rollCharacter}>
                 <AutoTextSize mode="box" maxFontSizePx="25" className={styles.characterFont}>
                   {roll.character}

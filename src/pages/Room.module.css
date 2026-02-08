@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  align-content: center;
 
   height: 100vh;
 }
@@ -13,7 +12,6 @@
   max-width: 750px;
   margin-top: 10px;
   margin-right: 5px;
-  align-items: center;
   text-align: center;
 }
 
@@ -45,7 +43,6 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 10px;
   background-color: var(--background-color-2);
   box-shadow: 0px 0px 10px #00000025;
   width: max-content;
@@ -69,7 +66,7 @@
   height: 55%;
   width: 480px;
 
-  overflow: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
 }
 .diceRolls::-webkit-scrollbar {
@@ -85,16 +82,13 @@
 .rollBanner {
   display: flex;
   flex-direction: row;
-  justify-content: left;
+  justify-content: flex-start;
   align-items: center;
   gap: 15px;
   height: auto;
   width: 460px;
 
-  border-width: 0px;
-  border-top-width: 1px;
-  border-color: var(--button-colour);
-  border-style: solid;
+  border-top: 1px solid var(--button-colour);
 
   .rollCharacter {
     min-height: 55px;
@@ -124,7 +118,6 @@
     .rollTotal {
       height: 25px;
       font-family: "Roboto Mono", monospace;
-      font-display: inherit;
       color: var(--text-colour);
     }
 
@@ -132,29 +125,28 @@
       min-height: 25px;
       height: auto;
       font-family: "Roboto Mono", monospace;
-      font-display: inherit;
       color: var(--text-colour);
       word-break: break-word;
       display: flex;
       flex-direction: column;
+
+      .notHighlighted {
+        height: 25px;
+      }
+
+      .highlightedRollAdvantage {
+        height: 25px;
+        font-weight: bold;
+        color: #22c55e;
+      }
+
+      .highlightedRollDisadvantage {
+        height: 25px;
+        font-weight: bold;
+        color: #ef4444;
+      }
     }
   }
-}
-
-.notHighlighted {
-  height: 25px;
-}
-
-.highlightedRollAdvantage {
-  height: 25px;
-  font-weight: bold;
-  color: #22c55e;
-}
-
-.highlightedRollDisadvantage {
-  height: 25px;
-  font-weight: bold;
-  color: #ef4444;
 }
 
 .bonusRow {
