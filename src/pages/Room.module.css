@@ -64,7 +64,7 @@
   align-items: center;
   margin-top: 15px;
   height: 55%;
-  width: 480px;
+  width: 415px;
 
   overflow-y: auto;
   overflow-x: hidden;
@@ -86,7 +86,7 @@
   align-items: center;
   gap: 15px;
   height: auto;
-  width: 460px;
+  width: 400px;
 
   border-top: 1px solid var(--button-colour);
 
