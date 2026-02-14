@@ -333,9 +333,9 @@ export default function Map() {
           tool={tool}
           colour={colour}
           size={size}
+          onScaleChange={setScale}
         />
         <div className={styles.sidebar}>
-          <h2>Characters</h2>
           {isAddingCharacter ? (
             <div className={styles.addCharacterMenu}>
               <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "0.5rem" }}>

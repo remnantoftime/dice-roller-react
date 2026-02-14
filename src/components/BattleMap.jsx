@@ -19,6 +19,7 @@ export default function BattleMap({
   tool,
   colour,
   size,
+  onScaleChange,
 }) {
   const canvasRef = useRef(null);
   const gridCanvasRef = useRef(null);
@@ -56,7 +57,9 @@ export default function BattleMap({
       if (canvasRef.current) {
         const rect = canvasRef.current.getBoundingClientRect();
         if (rect.width > 0) {
-          setScale(canvasRef.current.width / rect.width);
+          const newScale = canvasRef.current.width / rect.width;
+          setScale(newScale);
+          if (onScaleChange) onScaleChange(newScale);
         }
       }
     };
