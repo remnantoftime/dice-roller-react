@@ -236,93 +236,261 @@ export default function Map() {
         <SignOut />
         <ColourMode />
       </section>
-      <h1 className={styles.mapHeader}>Battle Map: {roomName.replaceAll("-", " ")}</h1>
       <div className={styles.mainContent}>
-        <div className={styles.controls}>
-          <div className={styles.controlGroup}>
-            <label
-              htmlFor="colourPicker"
-              className={styles.colorPreviewLabel}
-              title="Click to change color"
-            >
-              <div className={styles.sizePreviewContainer}>
-                <div
-                  className={styles.sizePreview}
-                  style={{
-                    width: size / scale,
-                    height: size / scale,
-                    backgroundColor: tool === "eraser" ? "#fff" : colour,
-                  }}
-                />
+        <div className={styles.topBar}>
+          <div className={styles.mapControls}>
+            <div className={styles.brushControls}>
+              <label
+                htmlFor="colourPicker"
+                className={styles.colorPreviewLabel}
+                title="Click to change color"
+              >
+                <div className={styles.sizePreviewContainer}>
+                  <div
+                    className={styles.sizePreview}
+                    style={{
+                      width: size / scale,
+                      height: size / scale,
+                      backgroundColor: tool === "eraser" ? "#fff" : colour,
+                    }}
+                  />
+                </div>
+              </label>
+              <input
+                id="colourPicker"
+                type="color"
+                value={colour}
+                onChange={(e) => {
+                  setColour(e.target.value);
+                  if (tool === "eraser") setTool("brush");
+                }}
+                className={styles.hiddenColorInput}
+              />
+              <input
+                id="sizeSlider"
+                type="range"
+                min="10"
+                max="200"
+                value={size}
+                onChange={(e) => setSize(Number(e.target.value))}
+                className={styles.sizeSlider}
+              />
+            </div>
+            <div className={styles.toolGrid}>
+              <button
+                className={`${styles.iconButton} ${
+                  tool === "cursor" ? styles.active : ""
+                }`}
+                onClick={() => setTool("cursor")}
+                title="Select / Move"
+              >
+                <CursorIcon />
+              </button>
+              <button
+                className={`${styles.iconButton} ${
+                  tool === "brush" ? styles.active : ""
+                }`}
+                onClick={() => setTool("brush")}
+                title="Brush"
+              >
+                <BrushIcon />
+              </button>
+              <button
+                className={`${styles.iconButton} ${
+                  tool === "eraser" ? styles.active : ""
+                }`}
+                onClick={() => setTool("eraser")}
+                title="Eraser"
+              >
+                <EraserIcon />
+              </button>
+              <button
+                className={`${styles.iconButton} ${
+                  tool === "line" ? styles.active : ""
+                }`}
+                onClick={() => setTool("line")}
+                title="Line"
+              >
+                <LineIcon />
+              </button>
+            </div>
+            <div className={styles.actionButtons}>
+              <button
+                className={styles.iconButton}
+                onClick={undoLastStroke}
+                title="Undo"
+              >
+                <UndoIcon />
+              </button>
+              <button
+                className={styles.iconButton}
+                onClick={clearMap}
+                title="Clear Map"
+              >
+                <ClearIcon />
+              </button>
+            </div>
+          </div>
+          <div className={styles.characterControls}>
+            {isAddingCharacter ? (
+              <div className={styles.addCharacterMenu}>
+                <form onSubmit={addCharacter} className={styles.characterForm}>
+                  <div className={styles.tokenPreviewContainer}>
+                    <div
+                      className={styles.tokenPreview}
+                      style={{ borderColor: newCharColor }}
+                      onClick={() => fileInputRef.current?.click()}
+                      title="Click to upload image"
+                    >
+                      {newCharImage ? (
+                        <img
+                          src={newCharImage}
+                          alt="Preview"
+                          className={styles.tokenImage}
+                        />
+                      ) : (
+                        <span className={styles.addIcon}>+</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className={styles.characterFormInputs}>
+                    <div className={styles.controlsRow}>
+                      <input
+                        type="color"
+                        value={newCharColor}
+                        onChange={(e) => setNewCharColor(e.target.value)}
+                        className={styles.colorInput}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Name"
+                        value={newCharName}
+                        onChange={(e) => setNewCharName(e.target.value)}
+                        required
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.controlsRow}>
+                      <div className={styles.sizeButtonGroup}>
+                        <button
+                          type="button"
+                          className={`${styles.sizeButton} ${
+                            newCharSize === 1 ? styles.active : ""
+                          }`}
+                          onClick={() => setNewCharSize(1)}
+                          title="Normal (1x1)"
+                        >
+                          <Size1Icon />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.sizeButton} ${
+                            newCharSize === 2 ? styles.active : ""
+                          }`}
+                          onClick={() => setNewCharSize(2)}
+                          title="Large (2x2)"
+                        >
+                          <Size2Icon />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.sizeButton} ${
+                            newCharSize === 3 ? styles.active : ""
+                          }`}
+                          onClick={() => setNewCharSize(3)}
+                          title="Huge (3x3)"
+                        >
+                          <Size3Icon />
+                        </button>
+                      </div>
+                      <button type="submit" className={styles.addButton}>
+                        Add
+                      </button>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className={styles.hiddenFileInput}
+                      ref={fileInputRef}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingCharacter(false)}
+                    className={styles.closeButton}
+                    title="Cancel"
+                  >
+                    ×
+                  </button>
+                </form>
               </div>
-            </label>
-            <input
-              id="colourPicker"
-              type="color"
-              value={colour}
-              onChange={(e) => {
-                setColour(e.target.value);
-                if (tool === "eraser") setTool("brush");
-              }}
-              className={styles.hiddenColorInput}
-            />
-          </div>
-          <div className={styles.toolGrid}>
-            <button
-              className={`${styles.iconButton} ${
-                tool === "cursor" ? styles.active : ""
-              }`}
-              onClick={() => setTool("cursor")}
-              title="Select / Move"
-            >
-              <CursorIcon />
-            </button>
-            <button
-              className={`${styles.iconButton} ${
-                tool === "brush" ? styles.active : ""
-              }`}
-              onClick={() => setTool("brush")}
-              title="Brush"
-            >
-              <BrushIcon />
-            </button>
-            <button
-              className={`${styles.iconButton} ${
-                tool === "eraser" ? styles.active : ""
-              }`}
-              onClick={() => setTool("eraser")}
-              title="Eraser"
-            >
-              <EraserIcon />
-            </button>
-            <button
-              className={`${styles.iconButton} ${
-                tool === "line" ? styles.active : ""
-              }`}
-              onClick={() => setTool("line")}
-              title="Line"
-            >
-              <LineIcon />
-            </button>
-          </div>
-          <div className={styles.controlGroup}>
-            <input
-              id="sizeSlider"
-              type="range"
-              min="10"
-              max="200"
-              value={size}
-              onChange={(e) => setSize(Number(e.target.value))}
-              className={styles.sizeSlider}
-            />
-          </div>
-          <div className={styles.buttonGroup}>
-            <button className={styles.iconButton} onClick={undoLastStroke} title="Undo">
-              <UndoIcon />
-            </button>
-            <button className={styles.iconButton} onClick={clearMap} title="Clear Map">
-              <ClearIcon />
-            </button>
+            ) : (
+              <div className={styles.reserveGrid}>
+                {characters
+                  .filter((c) => c.x === null || c.y === null)
+                  .map((char) => (
+                    <div
+                      key={char.id}
+                      className={styles.tokenWrapper}
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData("charId", char.id);
+                        const tokenCircle = e.currentTarget.children[0];
+                        if (tokenCircle) {
+                          e.dataTransfer.setDragImage(tokenCircle, 25, 25);
+                        }
+                      }}
+                      title={char.name}
+                    >
+                      <div
+                        className={styles.tokenCircle}
+                        style={{ borderColor: char.color || "#000" }}
+                      >
+                        <img
+                          src={char.image}
+                          alt={char.name}
+                          className={styles.tokenImage}
+                          draggable={false}
+                        />
+                      </div>
+                      <button
+                        onClick={() => deleteCharacter(char.id)}
+                        className={styles.deleteTokenButton}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                <div
+                  className={styles.tokenWrapper}
+                  onClick={() => setIsAddingCharacter(true)}
+                  title="Add Character"
+                  style={{ cursor: "pointer" }}
+                >
+                  <div
+                    className={styles.tokenCircle}
+                    style={{
+                      borderColor: "#ccc",
+                      borderStyle: "dashed",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "24px",
+                        color: "#ccc",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ?
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
         <BattleMap
@@ -335,135 +503,6 @@ export default function Map() {
           size={size}
           onScaleChange={setScale}
         />
-        <div className={styles.sidebar}>
-          {isAddingCharacter ? (
-            <div className={styles.addCharacterMenu}>
-              <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: "0.5rem" }}>
-                <button
-                  onClick={() => setIsAddingCharacter(false)}
-                  style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "inherit", padding: 0 }}
-                >
-                  ×
-                </button>
-              </div>
-              <form onSubmit={addCharacter} className={styles.characterForm}>
-                <div className={styles.tokenPreviewContainer}>
-                  <div
-                    className={styles.tokenPreview}
-                    style={{ borderColor: newCharColor }}
-                    onClick={() => fileInputRef.current?.click()}
-                    title="Click to upload image"
-                  >
-                    {newCharImage ? (
-                      <img
-                        src={newCharImage}
-                        alt="Preview"
-                        className={styles.tokenImage}
-                      />
-                    ) : (
-                      <span className={styles.addIcon}>+</span>
-                    )}
-                  </div>
-                </div>
-                <div className={styles.controlsRow}>
-                  <input
-                    type="color"
-                    value={newCharColor}
-                    onChange={(e) => setNewCharColor(e.target.value)}
-                    className={styles.colorInput}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Name"
-                    value={newCharName}
-                    onChange={(e) => setNewCharName(e.target.value)}
-                    required
-                    className={styles.input}
-                  />
-                </div>
-                <div className={styles.sizeButtonGroup}>
-                  <button
-                    type="button"
-                    className={`${styles.sizeButton} ${newCharSize === 1 ? styles.active : ""}`}
-                    onClick={() => setNewCharSize(1)}
-                    title="Normal (1x1)"
-                  >
-                    <Size1Icon />
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.sizeButton} ${newCharSize === 2 ? styles.active : ""}`}
-                    onClick={() => setNewCharSize(2)}
-                    title="Large (2x2)"
-                  >
-                    <Size2Icon />
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.sizeButton} ${newCharSize === 3 ? styles.active : ""}`}
-                    onClick={() => setNewCharSize(3)}
-                    title="Huge (3x3)"
-                  >
-                    <Size3Icon />
-                  </button>
-                </div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className={styles.hiddenFileInput}
-                  ref={fileInputRef}
-                />
-                <button type="submit" className={styles.addButton}>Add</button>
-              </form>
-            </div>
-          ) : (
-            <div className={styles.reserveGrid}>
-              {characters
-                .filter((c) => c.x === null || c.y === null)
-                .map((char) => (
-                  <div
-                    key={char.id}
-                    className={styles.tokenWrapper}
-                    draggable
-                    onDragStart={(e) => {
-                      e.dataTransfer.setData("charId", char.id);
-                      const tokenCircle = e.currentTarget.children[0];
-                      if (tokenCircle) {
-                        e.dataTransfer.setDragImage(tokenCircle, 25, 25);
-                      }
-                    }}
-                    title={char.name}
-                  >
-                    <div className={styles.tokenCircle} style={{ borderColor: char.color || "#000" }}>
-                      <img
-                        src={char.image}
-                        alt={char.name}
-                        className={styles.tokenImage}
-                        draggable={false}
-                      />
-                    </div>
-                    <button
-                      onClick={() => deleteCharacter(char.id)}
-                      className={styles.deleteTokenButton}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              <div
-                className={styles.tokenWrapper}
-                onClick={() => setIsAddingCharacter(true)}
-                title="Add Character"
-                style={{ cursor: "pointer" }}
-              >
-                <div className={styles.tokenCircle} style={{ borderColor: "#ccc", borderStyle: "dashed", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: "24px", color: "#ccc", fontWeight: "bold" }}>?</span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
