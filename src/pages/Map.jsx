@@ -392,7 +392,7 @@ export default function Map() {
                       />
                       <input
                         type="text"
-                        placeholder="Name"
+                        placeholder="Character Name"
                         value={newCharName}
                         onChange={(e) => setNewCharName(e.target.value)}
                         required
