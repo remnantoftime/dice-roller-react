@@ -105,6 +105,8 @@ export default function Map() {
   const [showControls, setShowControls] = useState(true);
   const topBarRef = useRef(null);
   const [controlsHeight, setControlsHeight] = useState(0);
+  const [draggedToken, setDraggedToken] = useState(null);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!topBarRef.current) return;
@@ -245,6 +247,30 @@ export default function Map() {
 
   const deleteCharacter = async (charId) => {
     await deleteDoc(doc(db, "characters", charId));
+  };
+
+  const handleDragStart = (e, char) => {
+    e.dataTransfer.setData("charId", char.id);
+    e.dataTransfer.effectAllowed = "copyMove";
+
+    // Create a transparent image to hide the default ghost
+    const img = new Image();
+    img.src =
+      "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+    e.dataTransfer.setDragImage(img, 0, 0);
+
+    setDragPosition({ x: e.clientX, y: e.clientY });
+    setDraggedToken(char);
+  };
+
+  const handleDrag = (e) => {
+    if (e.clientX === 0 && e.clientY === 0) return;
+    setDragPosition({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleDragEnd = () => {
+    setDraggedToken(null);
+    setDragPosition({ x: 0, y: 0 });
   };
 
   return (
@@ -466,13 +492,9 @@ export default function Map() {
                       key={char.id}
                       className={styles.tokenWrapper}
                       draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("charId", char.id);
-                        const tokenCircle = e.currentTarget.children[0];
-                        if (tokenCircle) {
-                          e.dataTransfer.setDragImage(tokenCircle, 25, 25);
-                        }
-                      }}
+                      onDragStart={(e) => handleDragStart(e, char)}
+                      onDrag={handleDrag}
+                      onDragEnd={handleDragEnd}
                       title={char.name}
                     >
                       <div
@@ -538,6 +560,31 @@ export default function Map() {
           />
         </div>
       </div>
+      {draggedToken && (
+        <div
+          style={{
+            position: "fixed",
+            left: dragPosition.x,
+            top: dragPosition.y,
+            transform: "translate(-50%, -50%)",
+            pointerEvents: "none",
+            zIndex: 10000,
+            width: "50px",
+            height: "50px",
+          }}
+        >
+          <div
+            className={styles.tokenCircle}
+            style={{ borderColor: draggedToken.color || "#000" }}
+          >
+            <img
+              src={draggedToken.image}
+              alt={draggedToken.name}
+              className={styles.tokenImage}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
