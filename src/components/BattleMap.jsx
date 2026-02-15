@@ -232,8 +232,7 @@ export default function BattleMap({
     }
   };
 
-  const stopDrawing = () => {
-    if (!isDrawing) return;
+  const stopDrawing = useCallback(() => {
     setIsDrawing(false);
 
     if (currentStrokeRef.current.length > 0) {
@@ -248,7 +247,20 @@ export default function BattleMap({
       addDoc(collection(db, "map-strokes"), newStroke);
     }
     currentStrokeRef.current = [];
-  };
+  }, [roomName, colour, size, tool]);
+
+  useEffect(() => {
+    if (!isDrawing) return;
+
+    const handleGlobalMouseUp = () => {
+      stopDrawing();
+    };
+
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalMouseUp);
+    };
+  }, [isDrawing, stopDrawing]);
 
   const startDrawing = (e) => {
     if (tool === "cursor") {
@@ -378,7 +390,6 @@ export default function BattleMap({
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={(e) => {
-          stopDrawing();
           setShowCursor(false);
         }}
         onMouseEnter={() => setShowCursor(true)}

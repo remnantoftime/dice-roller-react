@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo, useRef, lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
 import styles from "./Map.module.css";
 import { db } from "../configs/firebase";
@@ -15,7 +15,8 @@ import {
 } from "firebase/firestore";
 import ColourMode from "../components/ColourMode";
 import SignOut from "../components/SignOut";
-import BattleMap from "../components/BattleMap";
+
+const BattleMap = lazy(() => import("../components/BattleMap"));
 
 const BrushIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
@@ -548,16 +549,18 @@ export default function Map() {
           </div>
         </div>
         <div className={styles.mapWrapper}>
-          <BattleMap
-            roomName={roomName}
-            strokes={strokes}
-            characters={characters}
-            setCharacters={setCharacters}
-            tool={tool}
-            colour={colour}
-            size={size}
-            onScaleChange={setScale}
-          />
+          <Suspense fallback={<div>Loading Map...</div>}>
+            <BattleMap
+              roomName={roomName}
+              strokes={strokes}
+              characters={characters}
+              setCharacters={setCharacters}
+              tool={tool}
+              colour={colour}
+              size={size}
+              onScaleChange={setScale}
+            />
+          </Suspense>
         </div>
       </div>
       {draggedToken && (
