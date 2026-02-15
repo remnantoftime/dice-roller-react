@@ -303,59 +303,61 @@ export default function Map() {
                 className={styles.sizeSlider}
               />
             </div>
-            <div className={styles.toolGrid}>
-              <button
-                className={`${styles.iconButton} ${
-                  tool === "cursor" ? styles.active : ""
-                }`}
-                onClick={() => setTool("cursor")}
-                title="Select / Move"
-              >
-                <CursorIcon />
-              </button>
-              <button
-                className={`${styles.iconButton} ${
-                  tool === "brush" ? styles.active : ""
-                }`}
-                onClick={() => setTool("brush")}
-                title="Brush"
-              >
-                <BrushIcon />
-              </button>
-              <button
-                className={`${styles.iconButton} ${
-                  tool === "eraser" ? styles.active : ""
-                }`}
-                onClick={() => setTool("eraser")}
-                title="Eraser"
-              >
-                <EraserIcon />
-              </button>
-              <button
-                className={`${styles.iconButton} ${
-                  tool === "line" ? styles.active : ""
-                }`}
-                onClick={() => setTool("line")}
-                title="Line"
-              >
-                <LineIcon />
-              </button>
-            </div>
-            <div className={styles.actionButtons}>
-              <button
-                className={styles.iconButton}
-                onClick={undoLastStroke}
-                title="Undo"
-              >
-                <UndoIcon />
-              </button>
-              <button
-                className={styles.iconButton}
-                onClick={clearMap}
-                title="Clear Map"
-              >
-                <ClearIcon />
-              </button>
+            <div className={styles.toolAndActions}>
+              <div className={styles.toolGrid}>
+                <button
+                  className={`${styles.iconButton} ${
+                    tool === "cursor" ? styles.active : ""
+                  }`}
+                  onClick={() => setTool("cursor")}
+                  title="Select / Move"
+                >
+                  <CursorIcon />
+                </button>
+                <button
+                  className={`${styles.iconButton} ${
+                    tool === "brush" ? styles.active : ""
+                  }`}
+                  onClick={() => setTool("brush")}
+                  title="Brush"
+                >
+                  <BrushIcon />
+                </button>
+                <button
+                  className={`${styles.iconButton} ${
+                    tool === "eraser" ? styles.active : ""
+                  }`}
+                  onClick={() => setTool("eraser")}
+                  title="Eraser"
+                >
+                  <EraserIcon />
+                </button>
+                <button
+                  className={`${styles.iconButton} ${
+                    tool === "line" ? styles.active : ""
+                  }`}
+                  onClick={() => setTool("line")}
+                  title="Line"
+                >
+                  <LineIcon />
+                </button>
+              </div>
+              <div className={styles.actionButtons}>
+                <button
+                  className={styles.iconButton}
+                  onClick={undoLastStroke}
+                  title="Undo"
+                >
+                  <UndoIcon />
+                </button>
+                <button
+                  className={styles.iconButton}
+                  onClick={clearMap}
+                  title="Clear Map"
+                >
+                  <ClearIcon />
+                </button>
+              </div>
             </div>
           </div>
           <div className={styles.characterControls}>
@@ -433,6 +435,14 @@ export default function Map() {
                       <button type="submit" className={styles.addButton}>
                         Add
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddingCharacter(false)}
+                        className={styles.closeButton}
+                        title="Cancel"
+                      >
+                        ×
+                      </button>
                     </div>
                     <input
                       type="file"
@@ -442,14 +452,6 @@ export default function Map() {
                       ref={fileInputRef}
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingCharacter(false)}
-                    className={styles.closeButton}
-                    title="Cancel"
-                  >
-                    ×
-                  </button>
                 </form>
               </div>
             ) : (
