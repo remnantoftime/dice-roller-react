@@ -104,6 +104,20 @@ export default function Map() {
   const [newCharImage, setNewCharImage] = useState(null);
   const [isAddingCharacter, setIsAddingCharacter] = useState(false);
   const fileInputRef = useRef(null);
+  const [showControls, setShowControls] = useState(true);
+  const topBarRef = useRef(null);
+  const [controlsHeight, setControlsHeight] = useState(0);
+
+  useEffect(() => {
+    if (!topBarRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setControlsHeight(entry.target.offsetHeight);
+      }
+    });
+    observer.observe(topBarRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("map_colour", colour);
@@ -237,9 +251,22 @@ export default function Map() {
         <ColourMode />
       </section>
       <div className={styles.mainContent}>
-        <div className={styles.topBar}>
-          <div className={styles.mapControls}>
-            <div className={styles.brushControls}>
+        <div
+          className={styles.topBar}
+          ref={topBarRef}
+          style={{ marginBottom: showControls ? 0 : -controlsHeight}}
+        >
+          <button
+            className={styles.toggleButton}
+            onClick={() => setShowControls(!showControls)}
+            title={showControls ? "Hide Controls" : "Show Controls"}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" className={`${styles.toggleIcon} ${!showControls ? styles.collapsed : ""}`}>
+            <path d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+              <div className={styles.mapControls}>
+                <div className={styles.brushControls}>
               <label
                 htmlFor="colourPicker"
                 className={styles.colorPreviewLabel}
@@ -493,16 +520,18 @@ export default function Map() {
             )}
           </div>
         </div>
-        <BattleMap
-          roomName={roomName}
-          strokes={strokes}
-          characters={characters}
-          setCharacters={setCharacters}
-          tool={tool}
-          colour={colour}
-          size={size}
-          onScaleChange={setScale}
-        />
+        <div className={styles.mapWrapper}>
+          <BattleMap
+            roomName={roomName}
+            strokes={strokes}
+            characters={characters}
+            setCharacters={setCharacters}
+            tool={tool}
+            colour={colour}
+            size={size}
+            onScaleChange={setScale}
+          />
+        </div>
       </div>
     </div>
   );
