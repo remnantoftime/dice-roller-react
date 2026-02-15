@@ -134,7 +134,7 @@
   width: 20px;
   height: 75px;
   writing-mode: vertical-lr;
-  direction: rt1;
+  direction: rtl;
 }
 
 .toolGrid {
@@ -269,7 +269,7 @@
   align-items: center;
 }
 
-.input, .fileInput {
+.input {
   padding: 2px 5px;
   height: 20px;
   width: 100px;

@@ -4,7 +4,6 @@ import styles from "./Map.module.css";
 import { db } from "../configs/firebase";
 import {
   collection,
-  addDoc,
   onSnapshot,
   query,
   where,
@@ -13,7 +12,6 @@ import {
   doc,
   writeBatch,
   setDoc,
-  getDoc,
 } from "firebase/firestore";
 import ColourMode from "../components/ColourMode";
 import SignOut from "../components/SignOut";
@@ -203,6 +201,11 @@ export default function Map() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Firestore doc limit is 1MB. Base64 adds ~33% overhead.
+      if (file.size > 750 * 1024) {
+        alert("Image is too large. Please use an image under 750KB.");
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setNewCharImage(reader.result);
@@ -222,7 +225,7 @@ export default function Map() {
       const charId = `${roomName}_${newCharName.replaceAll(" ", "-")}`;
       const newChar = {
         name: newCharName,
-        size: parseInt(newCharSize),
+        size: newCharSize,
         image: newCharImage,
         color: newCharColor,
         room: roomName,
