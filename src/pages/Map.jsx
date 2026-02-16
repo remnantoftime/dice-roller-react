@@ -16,7 +16,7 @@ import {
 import ColourMode from "../components/ColourMode";
 import SignOut from "../components/SignOut";
 
-const BattleMap = lazy(() => import("../components/BattleMap"));
+const Map = lazy(() => import("../components/BattleMap/Map"));
 
 const BrushIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
@@ -78,7 +78,7 @@ const Size3Icon = () => (
 const MAP_WIDTH = 1500;
 const MAP_HEIGHT = 1500;
 
-export default function Map() {
+export default function MapPage() {
   const params = useParams();
   const roomName = useMemo(
     () => params.room.replaceAll(" ", "-").replaceAll("%20", "-").toLowerCase(),
@@ -550,7 +550,7 @@ export default function Map() {
         </div>
         <div className={styles.mapWrapper}>
           <Suspense fallback={<div>Loading Map...</div>}>
-            <BattleMap
+            <Map
               roomName={roomName}
               strokes={strokes}
               characters={characters}

@@ -4,7 +4,7 @@ import { useAuthContext } from "./context/AuthContext";
 import Home from "./pages/Home";
 import Room from "./pages/Room";
 import Login from "./pages/Login";
-import Map from "./pages/Map";
+import MapPage from "./pages/Map";
 
 function App() {
   const { currentUser } = useAuthContext();
@@ -41,7 +41,7 @@ function App() {
             path=":room/map"
             element={
               <ProtectedRoute>
-                <Map />
+                <MapPage />
               </ProtectedRoute>
             }
           />
