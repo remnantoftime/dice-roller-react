@@ -5,6 +5,7 @@
   min-height: 100vh;
   background-color: var(--background-color);
   color: var(--text-colour);
+  gap: 20px;
 }
 
 .header {

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import styles from "../components/BattleMap/BattleMap.module.css";
+import styles from "./Map.module.css";
 import ColourMode from "../components/ColourMode";
 import SignOut from "../components/SignOut";
 import BattleMap from "../components/BattleMap/BattleMap";
