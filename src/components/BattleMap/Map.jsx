@@ -8,7 +8,7 @@ import {
   setDoc,
   getDoc,
 } from "firebase/firestore";
-import styles from "../../pages/Map.module.css";
+import styles from "./BattleMap.module.css";
 
 const VIEWPORT_SIZE = 1500;
 const MAP_WIDTH = 3000;
