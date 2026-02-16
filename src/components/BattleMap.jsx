@@ -11,6 +11,8 @@ import {
 import { MAP_WIDTH, MAP_HEIGHT, drawStroke, drawGrid } from "../utils/canvasUtils";
 import styles from "../pages/Map.module.css";
 
+const VIEWPORT_SIZE = 1500;
+
 export default function BattleMap({
   roomName,
   strokes,
@@ -27,12 +29,18 @@ export default function BattleMap({
   const startPointRef = useRef(null);
   const dragListenersRef = useRef(null);
   const currentStrokeRef = useRef([]);
+  const lastMousePos = useRef(null);
 
   const [isDrawing, setIsDrawing] = useState(false);
   const [characterImages, setCharacterImages] = useState({});
   const [draggedToken, setDraggedToken] = useState(null);
   const [scale, setScale] = useState(1);
   const [showCursor, setShowCursor] = useState(false);
+  const [viewOffset, setViewOffset] = useState({ x: 700, y: 700 });
+  const [viewZoom, setViewZoom] = useState(1500);
+  const [isDraggingMap, setIsDraggingMap] = useState(false);
+
+  const zoomScale = VIEWPORT_SIZE / viewZoom;
 
   // Load character images
   useEffect(() => {
@@ -50,6 +58,19 @@ export default function BattleMap({
       }
     });
   }, [characters, characterImages]);
+
+  // Clamp viewOffset when zooming to prevent whitespace
+  useEffect(() => {
+    setViewOffset((prev) => {
+      const visibleWidth = viewZoom;
+      const maxX = Math.max(0, MAP_WIDTH - visibleWidth);
+      const maxY = Math.max(0, MAP_HEIGHT - visibleWidth);
+      return {
+        x: Math.max(0, Math.min(prev.x, maxX)),
+        y: Math.max(0, Math.min(prev.y, maxY)),
+      };
+    });
+  }, [viewZoom]);
 
   // Resize handler
   useEffect(() => {
@@ -84,7 +105,12 @@ export default function BattleMap({
     const canvas = canvasRef.current;
     if (canvas) {
       const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.save();
+      ctx.scale(zoomScale, zoomScale);
+      ctx.translate(-viewOffset.x, -viewOffset.y);
+      
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
@@ -100,12 +126,17 @@ export default function BattleMap({
           tool: tool,
         });
       }
+      ctx.restore();
     }
 
     const gridCanvas = gridCanvasRef.current;
     if (gridCanvas) {
       const ctx = gridCanvas.getContext("2d");
-      ctx.clearRect(0, 0, MAP_WIDTH, MAP_HEIGHT);
+      ctx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+      ctx.save();
+      ctx.scale(zoomScale, zoomScale);
+      ctx.translate(-viewOffset.x, -viewOffset.y);
 
       drawGrid(ctx);
 
@@ -114,7 +145,7 @@ export default function BattleMap({
         if (char.x === null || char.y === null) return;
         if (!characterImages[char.id]) return;
 
-        const cellSize = MAP_WIDTH / 15;
+        const cellSize = 100;
         const x = char.x * cellSize;
         const y = char.y * cellSize;
         const size = char.size * cellSize;
@@ -137,7 +168,7 @@ export default function BattleMap({
       });
 
       if (draggedToken && characterImages[draggedToken.char.id]) {
-        const cellSize = MAP_WIDTH / 15;
+        const cellSize = 100;
         const size = draggedToken.char.size * cellSize;
         const radius = size / 2;
         const centerX = draggedToken.x + radius;
@@ -164,6 +195,7 @@ export default function BattleMap({
         ctx.stroke();
         ctx.globalAlpha = 1.0;
       }
+      ctx.restore();
     }
   }, [
     strokes,
@@ -174,6 +206,8 @@ export default function BattleMap({
     colour,
     size,
     tool,
+    viewOffset,
+    zoomScale,
   ]);
 
   useEffect(() => {
@@ -185,9 +219,12 @@ export default function BattleMap({
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
+    const screenX = (e.clientX - rect.left) * scaleX;
+    const screenY = (e.clientY - rect.top) * scaleY;
+    
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: (screenX / zoomScale) + viewOffset.x,
+      y: (screenY / zoomScale) + viewOffset.y,
     };
   };
 
@@ -195,7 +232,7 @@ export default function BattleMap({
     if (cursorRef.current && canvasRef.current) {
       const rect = canvasRef.current.getBoundingClientRect();
       const scale = canvasRef.current.width / rect.width;
-      const screenSize = size / scale;
+      const screenSize = (size * zoomScale) / scale;
 
       cursorRef.current.style.left = `${e.clientX}px`;
       cursorRef.current.style.top = `${e.clientY}px`;
@@ -207,6 +244,8 @@ export default function BattleMap({
       return;
     }
 
+    if (isDraggingMap) return;
+
     if (!isDrawing) return;
     const coords = getCoordinates(e);
     const prevPoint = currentStrokeRef.current[currentStrokeRef.current.length - 1];
@@ -216,7 +255,12 @@ export default function BattleMap({
       redrawCanvas();
     } else {
       currentStrokeRef.current.push(coords);
+      // We need to draw on the transformed context
       const ctx = canvasRef.current.getContext("2d");
+      ctx.save();
+      ctx.scale(zoomScale, zoomScale);
+      ctx.translate(-viewOffset.x, -viewOffset.y);
+      
       ctx.lineWidth = size;
       ctx.strokeStyle = colour;
       ctx.globalCompositeOperation =
@@ -229,6 +273,8 @@ export default function BattleMap({
       }
       ctx.lineTo(coords.x, coords.y);
       ctx.stroke();
+      
+      ctx.restore();
     }
   };
 
@@ -250,22 +296,23 @@ export default function BattleMap({
   }, [roomName, colour, size, tool]);
 
   useEffect(() => {
-    if (!isDrawing) return;
+    if (!isDrawing && !isDraggingMap) return;
 
     const handleGlobalMouseUp = () => {
-      stopDrawing();
+      if (isDrawing) stopDrawing();
+      setIsDraggingMap(false);
     };
 
     window.addEventListener("mouseup", handleGlobalMouseUp);
     return () => {
       window.removeEventListener("mouseup", handleGlobalMouseUp);
     };
-  }, [isDrawing, stopDrawing]);
+  }, [isDrawing, isDraggingMap, stopDrawing]);
 
   const startDrawing = (e) => {
     if (tool === "cursor") {
       const coords = getCoordinates(e);
-      const cellSize = MAP_WIDTH / 15;
+      const cellSize = 100;
 
       const clickedChar = [...characters].reverse().find((char) => {
         if (char.x === null || char.y === null) return false;
@@ -300,6 +347,26 @@ export default function BattleMap({
           window.removeEventListener("mouseup", handleWindowMouseUp);
           dragListenersRef.current = null;
 
+          const canvas = canvasRef.current;
+          const rect = canvas.getBoundingClientRect();
+          const isOutside =
+            upEvent.clientX < rect.left ||
+            upEvent.clientX > rect.right ||
+            upEvent.clientY < rect.top ||
+            upEvent.clientY > rect.bottom;
+
+          if (isOutside) {
+            setCharacters((prev) =>
+              prev.map((char) =>
+                char.id === clickedChar.id ? { ...char, x: null, y: null } : char
+              )
+            );
+            const charRef = doc(db, "characters", clickedChar.id);
+            setDoc(charRef, { ...clickedChar, x: null, y: null });
+            setDraggedToken(null);
+            return;
+          }
+
           const finalCoords = getCoordinates(upEvent);
           const finalX = finalCoords.x - offsetX;
           const finalY = finalCoords.y - offsetY;
@@ -307,7 +374,7 @@ export default function BattleMap({
           let gridX = Math.round(finalX / cellSize);
           let gridY = Math.round(finalY / cellSize);
 
-          if (gridX < 0 || gridX >= 15 || gridY < 0 || gridY >= 15) {
+          if (gridX < 0 || gridX >= 30 || gridY < 0 || gridY >= 30) {
             gridX = null;
             gridY = null;
           }
@@ -334,6 +401,37 @@ export default function BattleMap({
           move: handleWindowMouseMove,
           up: handleWindowMouseUp,
         };
+      } else {
+        // Drag map
+        setIsDraggingMap(true);
+        lastMousePos.current = { x: e.clientX, y: e.clientY };
+
+        const handleWindowMouseMove = (moveEvent) => {
+          const dx = moveEvent.clientX - lastMousePos.current.x;
+          const dy = moveEvent.clientY - lastMousePos.current.y;
+          lastMousePos.current = { x: moveEvent.clientX, y: moveEvent.clientY };
+
+          const canvas = canvasRef.current;
+          const rect = canvas.getBoundingClientRect();
+          const cssToInternal = canvas.width / rect.width;
+
+          const worldDx = (dx * cssToInternal) / zoomScale;
+          const worldDy = (dy * cssToInternal) / zoomScale;
+
+          setViewOffset((prev) => ({
+            x: Math.max(0, Math.min(prev.x - worldDx, MAP_WIDTH - viewZoom)),
+            y: Math.max(0, Math.min(prev.y - worldDy, MAP_HEIGHT - viewZoom)),
+          }));
+        };
+
+        const handleWindowMouseUp = () => {
+          setIsDraggingMap(false);
+          window.removeEventListener("mousemove", handleWindowMouseMove);
+          window.removeEventListener("mouseup", handleWindowMouseUp);
+        };
+
+        window.addEventListener("mousemove", handleWindowMouseMove);
+        window.addEventListener("mouseup", handleWindowMouseUp);
       }
       return;
     }
@@ -345,6 +443,10 @@ export default function BattleMap({
 
     if (tool !== "line") {
       const ctx = canvasRef.current.getContext("2d");
+      ctx.save();
+      ctx.scale(zoomScale, zoomScale);
+      ctx.translate(-viewOffset.x, -viewOffset.y);
+      
       ctx.beginPath();
       ctx.lineWidth = size;
       ctx.strokeStyle = colour;
@@ -353,6 +455,8 @@ export default function BattleMap({
       ctx.moveTo(coords.x, coords.y);
       ctx.lineTo(coords.x, coords.y);
       ctx.stroke();
+      
+      ctx.restore();
     }
   };
 
@@ -362,7 +466,7 @@ export default function BattleMap({
     if (!charId) return;
 
     const coords = getCoordinates(e);
-    const cellSize = MAP_WIDTH / 15;
+    const cellSize = 100;
     const gridX = Math.floor(coords.x / cellSize);
     const gridY = Math.floor(coords.y / cellSize);
 
@@ -374,15 +478,23 @@ export default function BattleMap({
     }
   };
 
+  const handleZoomIn = () => {
+    setViewZoom((prev) => Math.max(500, prev - 200));
+  };
+
+  const handleZoomOut = () => {
+    setViewZoom((prev) => Math.min(3000, prev + 200));
+  };
+
   return (
-    <div className={styles.canvasContainer} style={{ display: "grid" }}>
+    <div className={styles.canvasContainer} style={{ display: "grid", position: "relative" }}>
       <canvas
         ref={canvasRef}
-        width={MAP_WIDTH}
-        height={MAP_HEIGHT}
+        width={VIEWPORT_SIZE}
+        height={VIEWPORT_SIZE}
         className={styles.canvas}
         style={{
-          cursor: tool === "cursor" ? "default" : "none",
+          cursor: tool === "cursor" ? (isDraggingMap ? "grabbing" : "grab") : "none",
           gridArea: "1 / 1",
           zIndex: 1,
         }}
@@ -398,8 +510,8 @@ export default function BattleMap({
       />
       <canvas
         ref={gridCanvasRef}
-        width={MAP_WIDTH}
-        height={MAP_HEIGHT}
+        width={VIEWPORT_SIZE}
+        height={VIEWPORT_SIZE}
         className={styles.canvas}
         style={{
           gridArea: "1 / 1",
@@ -419,6 +531,10 @@ export default function BattleMap({
           }}
         />
       )}
+      <div className={styles.zoomControls}>
+        <button onClick={handleZoomIn} className={styles.zoomButton}>+</button>
+        <button onClick={handleZoomOut} className={styles.zoomButton}>-</button>
+      </div>
     </div>
   );
 }

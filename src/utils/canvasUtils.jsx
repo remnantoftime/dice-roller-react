@@ -1,5 +1,5 @@
-export const MAP_WIDTH = 1500;
-export const MAP_HEIGHT = 1500;
+export const MAP_WIDTH = 3000;
+export const MAP_HEIGHT = 3000;
 
 export const drawStroke = (ctx, stroke) => {
   if (!stroke.points || stroke.points.length < 1) return;
@@ -22,8 +22,8 @@ export const drawGrid = (ctx) => {
   ctx.beginPath();
   ctx.lineWidth = 2;
   ctx.strokeStyle = "#ccc";
-  const cellSize = MAP_WIDTH / 15;
-  for (let i = 0; i <= 15; i++) {
+  const cellSize = 100;
+  for (let i = 0; i <= 30; i++) {
     ctx.moveTo(i * cellSize, 0);
     ctx.lineTo(i * cellSize, MAP_HEIGHT);
     ctx.moveTo(0, i * cellSize);
