@@ -31,22 +31,8 @@ export default function BattleMap({ roomName }) {
   const [newCharImage, setNewCharImage] = useState(null);
   const [isAddingCharacter, setIsAddingCharacter] = useState(false);
   const fileInputRef = useRef(null);
-  const [showControls, setShowControls] = useState(true);
-  const topBarRef = useRef(null);
-  const [controlsHeight, setControlsHeight] = useState(0);
   const [draggedToken, setDraggedToken] = useState(null);
   const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!topBarRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        setControlsHeight(entry.target.offsetHeight);
-      }
-    });
-    observer.observe(topBarRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     localStorage.setItem("map_colour", colour);
@@ -205,10 +191,6 @@ export default function BattleMap({ roomName }) {
   return (
     <div className={styles.mainContent}>
       <MapTool
-        ref={topBarRef}
-        showControls={showControls}
-        setShowControls={setShowControls}
-        controlsHeight={controlsHeight}
         colour={colour}
         setColour={setColour}
         tool={tool}

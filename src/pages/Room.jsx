@@ -10,6 +10,7 @@ import { AutoTextSize } from "auto-text-size";
 import ColourMode from "../components/ColourMode";
 import { System } from "../components/System";
 import SignOut from "../components/SignOut";
+import BattleMap from "../components/BattleMap/BattleMap";
 import { db } from "../configs/firebase";
 import {
   collection,
@@ -21,6 +22,7 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
+import { Map } from "../components/Map";
 
 export default function Room() {
   // Set up and redirect if the url contains a system that doesn't exit
@@ -33,6 +35,16 @@ export default function Room() {
   useEffect(() => {
     localStorage.setItem("room", roomName);
   }, [roomName]);
+
+  useEffect(() => {
+    document.body.style.overflowY = "scroll";
+    return () => {
+      document.body.style.overflowY = "auto";
+    };
+  }, []);
+
+  // Create state for whether battle map is showing
+  const [showBattleMap, setShowBattleMap] = useState(false);
 
   // Create the random number generator based on the user's seed and the current time
   const generator = useMemo(() => new MersenneTwister(localStorage.getItem("seed")), []);
@@ -123,80 +135,87 @@ export default function Room() {
       <section className={styles.header}>
         <SignOut />
         <System system={system} setSystem={handleSystemChange} />
+        <Map map={showBattleMap} setMap={setShowBattleMap} />
         <ColourMode />
       </section>
-      <h1 className={styles.roomHeader}>{roomName.replaceAll("-", " ")}</h1>
-      <div className={styles.dice_input}>
-        <input
-          type="text"
-          placeholder="Character Name"
-          className={styles.characterSelect}
-          value={characterName}
-          onChange={(e) => setCharacterName(e.target.value)}
-        />
-        <DiceTray diceNumbers={diceNumbers} setDiceNumbers={setDiceNumbers} />
-        <div className={styles.roller}>
-          <div className={styles.bonusRow}>
-            {systemsJson[system].hasFortune && (
-              <button
-                className={`${styles.fortuneButton} ${styles.advantage} ${
-                  rollFortune === "advantage" ? styles.active : ""
-                }`}
-                onClick={() => handleRollFortuneClick("advantage")}
-              >
-                A
-              </button>
-            )}
-            <RollBonus rollBonus={rollBonus} setRollBonus={handleSetRollBonus} />
-            {systemsJson[system].hasFortune && (
-              <button
-                className={`${styles.fortuneButton} ${styles.disadvantage} ${
-                  rollFortune === "disadvantage" ? styles.active : ""
-                }`}
-                onClick={() => handleRollFortuneClick("disadvantage")}
-              >
-                D
-              </button>
-            )}
-          </div>
-          <input className={styles.roll_button} type="submit" value="Roll" onClick={rollDice} />
-        </div>
-      </div>
-      <div className={styles.diceRolls}>
-        {diceRollHistory.map((roll) => {
-          return (
-            <div key={roll.id} className={styles.rollBanner}>
-              <div className={styles.rollCharacter}>
-                <AutoTextSize mode="box" maxFontSizePx="25" className={styles.characterFont}>
-                  {roll.character}
-                </AutoTextSize>
+      {showBattleMap ? (
+        <BattleMap roomName={roomName} />
+      ) : (
+        <>
+          <h1 className={styles.roomHeader}>{roomName.replaceAll("-", " ")}</h1>
+          <div className={styles.dice_input}>
+            <input
+              type="text"
+              placeholder="Character Name"
+              className={styles.characterSelect}
+              value={characterName}
+              onChange={(e) => setCharacterName(e.target.value)}
+            />
+            <DiceTray diceNumbers={diceNumbers} setDiceNumbers={setDiceNumbers} />
+            <div className={styles.roller}>
+              <div className={styles.bonusRow}>
+                {systemsJson[system].hasFortune && (
+                  <button
+                    className={`${styles.fortuneButton} ${styles.advantage} ${
+                      rollFortune === "advantage" ? styles.active : ""
+                    }`}
+                    onClick={() => handleRollFortuneClick("advantage")}
+                  >
+                    A
+                  </button>
+                )}
+                <RollBonus rollBonus={rollBonus} setRollBonus={handleSetRollBonus} />
+                {systemsJson[system].hasFortune && (
+                  <button
+                    className={`${styles.fortuneButton} ${styles.disadvantage} ${
+                      rollFortune === "disadvantage" ? styles.active : ""
+                    }`}
+                    onClick={() => handleRollFortuneClick("disadvantage")}
+                  >
+                    D
+                  </button>
+                )}
               </div>
-              <div className={styles.rollDetails}>
-                <div className={styles.rollTotal}>
-                  <AutoTextSize mode="box">Total: {roll.total}</AutoTextSize>
-                </div>
-                <div className={styles.rollParts}>
-                  {roll.diceRoll.split(" : ").map((part, i) => {
-                    const isHighlighted = part.startsWith("**") && part.endsWith("**");
-                    const text = isHighlighted ? part.slice(2, -2) : part;
-                    const highlightClass =
-                      roll.fortune === "advantage"
-                        ? styles.highlightedRollAdvantage
-                        : roll.fortune === "disadvantage"
-                        ? styles.highlightedRollDisadvantage
-                        : styles.notHighlighted;
-                    return (
-                      <div key={i} className={isHighlighted ? highlightClass : styles.notHighlighted}>
-                        <AutoTextSize mode="box">{text}</AutoTextSize>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <input className={styles.roll_button} type="submit" value="Roll" onClick={rollDice} />
             </div>
-          );
-        })}
-      </div>
+          </div>
+          <div className={styles.diceRolls}>
+            {diceRollHistory.map((roll) => {
+              return (
+                <div key={roll.id} className={styles.rollBanner}>
+                  <div className={styles.rollCharacter}>
+                    <AutoTextSize mode="box" maxFontSizePx="25" className={styles.characterFont}>
+                      {roll.character}
+                    </AutoTextSize>
+                  </div>
+                  <div className={styles.rollDetails}>
+                    <div className={styles.rollTotal}>
+                      <AutoTextSize mode="box">Total: {roll.total}</AutoTextSize>
+                    </div>
+                    <div className={styles.rollParts}>
+                      {roll.diceRoll.split(" : ").map((part, i) => {
+                        const isHighlighted = part.startsWith("**") && part.endsWith("**");
+                        const text = isHighlighted ? part.slice(2, -2) : part;
+                        const highlightClass =
+                          roll.fortune === "advantage"
+                            ? styles.highlightedRollAdvantage
+                            : roll.fortune === "disadvantage"
+                            ? styles.highlightedRollDisadvantage
+                            : styles.notHighlighted;
+                        return (
+                          <div key={i} className={isHighlighted ? highlightClass : styles.notHighlighted}>
+                            <AutoTextSize mode="box">{text}</AutoTextSize>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }
