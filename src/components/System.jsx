@@ -1,4 +1,4 @@
-import styles from "./css/System.module.css";
+import styles from "./css/Header.module.css";
 import { useTheme } from "../context/ThemeContext";
 import diceSystems from "../assets/systems/SystemDice.json";
 
@@ -39,7 +39,7 @@ export const System = ({ system, setSystem }) => {
   return (
     <img
       src={images[system]}
-      className={styles.systemImage}
+      className={styles.headerImage}
       alt={systemNames[system]}
       onClick={changeSystem}
     />
